@@ -1,0 +1,21 @@
+{
+    "guardrails": [
+        {
+            "name": "BasicGuardrail",
+            "guardrail_type": "input",
+            "description": "An example guardrail for demonstration purposes.",
+            "rules": [
+                {
+                    "type": "length",
+                    "max_length": 100,
+                    "error_message": "Input exceeds maximum length of 100 characters."
+                },
+                {
+                    "type": "pattern",
+                    "pattern": "^[a-zA-Z0-9\\s]+$",
+                    "error_message": "Input contains invalid characters."
+                }
+            ]
+        }
+    ]
+}
