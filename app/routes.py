@@ -33,10 +33,12 @@ try:
         logger.info(
             f"Guardrail loaded: {guardrail['name']} of type {guardrail['guardrail_type']}"
         )
+        print('guardrail', guardrail)
         if guardrail["guardrail_type"] == "input":
             input_guardrail = GuardrailService(guardrail)
         if guardrail["guardrail_type"] == "output":
             output_guardrail = GuardrailService(guardrail)
+            print(f"Output guardrail loaded: {output_guardrail.config['name']}")
 
     similarity_service = SimilarityService()
     logger.info("Services initialized successfully")

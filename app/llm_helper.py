@@ -30,6 +30,7 @@ class LLMHelper:
             )
         logger.info(f"Loading model: {self.model_name}")
         self.temperature = config.get("parameters", {}).get("temperature", 1.0)
+        self.max_length = config.get("parameters", {}).get("max_length", 200)
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForCausalLM.from_pretrained(
@@ -42,9 +43,9 @@ class LLMHelper:
 
     def generate(self, prompt: str, **generation_kwargs) -> str:
         """Generate text from the model based on the provided prompt."""
-        generation_kwargs.setdefault("max_length", 200)
+        generation_kwargs.setdefault("max_length", self.max_length)
         generation_kwargs.setdefault("do_sample", True)
-        generation_kwargs.setdefault("temperature", 0.8)
+        generation_kwargs.setdefault("temperature",self.temperature)
 
         messages = [
             {
@@ -61,7 +62,7 @@ class LLMHelper:
             add_generation_prompt=False,
         ).to(self.device)
         outputs = self.model.generate(
-            **chat_input, max_new_tokens=150, temperature=self.temperature
+            **chat_input, max_new_tokens=150, **generation_kwargs
         ).to(self.device)
         decoded_message = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 

@@ -13,6 +13,7 @@
                 {
                     "type": "pattern",
                     "pattern": "([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})",
+                    "replace_with": "<email_address>",
                     "error_message": "Input contains email addresses."
                 }
             ]

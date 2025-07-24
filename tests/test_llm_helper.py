@@ -32,17 +32,17 @@ class TestLLMHelper:
 
         # Test initialization with config
         config = {
-            "model": "test-model",
+            "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
             "cache_dir": "/tmp/test_cache",
             "parameters": {"temperature": 0.5}
         }
         helper = LLMHelper(config=config)
 
         assert helper.device == "cpu"
-        assert helper.model_name == "test-model"
+        assert helper.model_name == "HuggingFaceTB/SmolLM2-135M-Instruct"
         assert helper.temperature == 0.5
         assert os.environ["HF_HOME"] == "/tmp/test_cache"
-        mock_tokenizer.from_pretrained.assert_called_once_with("test-model")
+        mock_tokenizer.from_pretrained.assert_called_once_with("HuggingFaceTB/SmolLM2-135M-Instruct")
         mock_model.from_pretrained.assert_called_once()
         mock_model_instance.eval.assert_called_once()
 
@@ -66,7 +66,7 @@ class TestLLMHelper:
         mock_model_instance.to.return_value = mock_model_instance
 
         # Test initialization with CUDA
-        config = {"model": "test-model"}
+        config = {"model": "HuggingFaceTB/SmolLM2-135M-Instruct"}
         helper = LLMHelper(config=config)
 
         assert helper.device == "cuda"
@@ -150,7 +150,7 @@ class TestLLMHelper:
         mock_model_instance.generate.return_value = mock_outputs
 
         # Initialize helper
-        config = {"model": "test-model", "parameters": {"temperature": 0.8}}
+        config = {"model": "HuggingFaceTB/SmolLM2-135M-Instruct", "parameters": {"temperature": 0.8}}
         helper = LLMHelper(config=config)
 
         # Test generation
@@ -176,9 +176,9 @@ class TestLLMHelper:
         # Mock tokenizer to raise exception
         mock_tokenizer.from_pretrained.side_effect = Exception("Model not found")
 
-        # Test that RuntimeError is raised
+        # Test that ValueError is raised
         config = {"model": "invalid-model"}
-        with pytest.raises(RuntimeError, match="Failed to load model invalid-model"):
+        with pytest.raises(ValueError, match="Model invalid-model is not compatible. Supported models: .*$"):
             LLMHelper(config=config)
 
     @patch("app.llm_helper.AutoTokenizer")
@@ -212,7 +212,7 @@ class TestLLMHelper:
         mock_model_instance.generate.return_value = mock_outputs
 
         # Initialize helper
-        config = {"model": "test-model"}
+        config = {"model": "HuggingFaceTB/SmolLM2-135M-Instruct"}
         helper = LLMHelper(config=config)
 
         # Test generation with custom parameters
@@ -337,8 +337,8 @@ class TestLLMHelper:
 
         # Test with custom cache directory
         custom_cache = "/tmp/custom_cache"
-        config = {"cache_dir": custom_cache}
-        
-        helper = LLMHelper(config=config)
+        config = {"cache_dir": custom_cache,"model": "HuggingFaceTB/SmolLM2-135M-Instruct"}
+
+        helper = LLMHelper(config=config)  # noqa: F841
         
         assert os.environ["HF_HOME"] == custom_cache
