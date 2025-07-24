@@ -17,7 +17,6 @@ from app.models import (
     PredictionResponse,
 )
 import logging
-import os
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -46,11 +45,7 @@ except Exception as e:
     config = {}
     similarity_service = None
 # Loading the LLM Helper outside the endpoints to avoid re-initialization
-os.environ["HF_HOME"] = config.get("prediction", {}).get("cache_dir", "./.cache/")
-print(f"HF_HOME set to: {os.environ['HF_HOME']}")
-llm_helper = LLMHelper(
-    model_name=config.get("prediction", {}).get("model", "default_model")
-)
+llm_helper = LLMHelper(config=config.get("prediction", {}))
 
 cache = {}
 

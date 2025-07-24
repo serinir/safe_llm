@@ -109,7 +109,7 @@ The `config.json` file defines guardrails with their rules:
 
 The application uses a modular architecture:
 
-- **GuardrailManager**: Handles all guardrail operations
+- **GuardrailService**: Handles all guardrail operations
 - **SimilarityService**: Manages different similarity calculation methods
 - **Routes**: Clean API layer that delegates to appropriate services
 

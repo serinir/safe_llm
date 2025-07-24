@@ -2,6 +2,7 @@
 LLM Helper Module
 """
 
+import os
 import torch
 import logging
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -9,16 +10,26 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
+COMPATIBLE_MODELS = [
+    "HuggingFaceTB/SmolLM2-135M-Instruct",
+]
 class LLMHelper:
-    def __init__(self, model_name: str = "default_model"):
+    def __init__(self, config: dict = None):
+        if config is None:
+            config = {}
+        os.environ["HF_HOME"] = config.get("cache_dir", "./.cache/")
+        logger.info(f"Using cache directory: {os.environ['HF_HOME']}")
+
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Using device: {self.device}")
-        self.model_name = model_name
-        if model_name == "default_model":
-            self.model_name = "HuggingFaceTB/SmolLM2-135M-Instruct"
 
+        self.model_name = config.get("model", "HuggingFaceTB/SmolLM2-135M-Instruct")
+        if self.model_name not in COMPATIBLE_MODELS:
+            raise ValueError(
+                f"Model {self.model_name} is not compatible. Supported models: {COMPATIBLE_MODELS}"
+            )
         logger.info(f"Loading model: {self.model_name}")
+        self.temperature = config.get("parameters", {}).get("temperature", 1.0)
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForCausalLM.from_pretrained(
@@ -27,7 +38,7 @@ class LLMHelper:
             self.model.eval()  # Set model to evaluation mode
         except Exception as e:
             logger.error(f"Error loading model: {e}")
-            raise RuntimeError(f"Failed to load model {model_name}: {e}")
+            raise RuntimeError(f"Failed to load model {self.model_name}: {e}")
 
     def generate(self, prompt: str, **generation_kwargs) -> str:
         """Generate text from the model based on the provided prompt."""
@@ -38,7 +49,7 @@ class LLMHelper:
         messages = [
             {
                 "role": "system",
-                "content": "Your task is to help user create SQL queries, do only that.",
+                "content": "Your task is to help user create SQL queries, do not deviate from that.",
             },
             {"role": "user", "content": prompt},
         ]
@@ -49,7 +60,9 @@ class LLMHelper:
             return_tensors="pt",
             add_generation_prompt=False,
         ).to(self.device)
-        outputs = self.model.generate(**chat_input, max_new_tokens=150).to(self.device)
+        outputs = self.model.generate(
+            **chat_input, max_new_tokens=150, temperature=self.temperature
+        ).to(self.device)
         decoded_message = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
         return decoded_message
