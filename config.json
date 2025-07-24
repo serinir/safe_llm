@@ -12,8 +12,8 @@
                 },
                 {
                     "type": "pattern",
-                    "pattern": "^[a-zA-Z0-9\\s]+$",
-                    "error_message": "Input contains invalid characters."
+                    "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                    "error_message": "Input contains email addresses."
                 }
             ]
         }
