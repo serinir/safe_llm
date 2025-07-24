@@ -115,6 +115,30 @@ The application uses a modular architecture:
 
 To add new guardrail rules or similarity methods, extend the respective classes in their modules.
 
+## Testing
+Unit tests are located in the `tests/` directory. Use `pytest` to run them:
+
+```bash
+uv run pytest tests/
+```
+to generate a coverage report, use:
+
+```bash
+uv run pytest --cov=app tests/
+```
+Integration tests not included yet, but can be added in the future.
+## Building container
+To build a Docker container for the application, use the provided `Dockerfile`:
+
+```bash
+docker build -t safe_llm_endpoint .
+```
+To run the container:
+
+```bash
+docker run -p 8000:8000 safe_llm_endpoint
+```
+
 ## API Documentation
 
 When running, visit:
