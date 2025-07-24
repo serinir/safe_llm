@@ -173,11 +173,6 @@ uv run pytest tests/
 
 # Run with coverage report
 uv run pytest --cov=app tests/
-
-# Run specific test categories
-./run-tests.sh unit          # Unit tests only
-./run-tests.sh integration   # Integration tests only
-./run-tests.sh coverage      # Tests with coverage
 ```
 
 ### Test Categories
@@ -186,13 +181,11 @@ uv run pytest --cov=app tests/
 - **Integration Tests**: Full API workflow testing with real HTTP requests
 - **API Tests**: Complete endpoint testing including error handling
 - **Service Tests**: GuardrailService, SimilarityService, and LLMHelper testing
+- **Integration Tests**: Not yet implemented.
+- **Load Tests**: 
+    - Prediction endpoint : since it's a device intensive, it should be test for memory usage, latency, and throughput.
+    - Guardrails & Similarity endpoint : Fast, test throughput and latency for input/output validation.
 
-### Test Features
-
-- **Comprehensive Mocking**: LLM models mocked to avoid loading during tests
-- **Fixture Management**: Clean test data and configuration setup
-- **Edge Case Coverage**: Empty inputs, invalid data, error conditions
-- **Performance Testing**: Concurrent request handling and large input testing
 ## Building container
 To build a Docker container for the application, use the provided `Dockerfile`:
 
