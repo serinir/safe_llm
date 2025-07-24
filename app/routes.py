@@ -1,3 +1,7 @@
+"""
+routers for the Safe LLM Endpoint API
+"""
+
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any, List
 from app.utils import load_config
@@ -42,7 +46,7 @@ except Exception as e:
     config = {}
     similarity_service = None
 # Loading the LLM Helper outside the endpoints to avoid re-initialization
-os.environ['HF_HOME'] = config.get("prediction", {}).get("cache_dir", "./.cache/")
+os.environ["HF_HOME"] = config.get("prediction", {}).get("cache_dir", "./.cache/")
 print(f"HF_HOME set to: {os.environ['HF_HOME']}")
 llm_helper = LLMHelper(
     model_name=config.get("prediction", {}).get("model", "default_model")

@@ -1,3 +1,7 @@
+"""
+utils file for the Safe LLM Endpoint API
+"""
+
 import json
 import os
 

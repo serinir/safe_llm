@@ -13,7 +13,7 @@ from unittest.mock import patch, MagicMock
 # Mock the LLMHelper to avoid loading actual model during tests
 @pytest.fixture(autouse=True)
 def mock_llm_helper():
-    with patch('app.routes.LLMHelper') as mock:
+    with patch("app.routes.LLMHelper") as mock:
         mock_instance = MagicMock()
         mock_instance.generate.return_value = "Mocked generated text response"
         mock.return_value = mock_instance
@@ -33,14 +33,14 @@ def test_config():
                     {
                         "type": "length",
                         "max_length": 50,
-                        "error_message": "Input too long for test"
+                        "error_message": "Input too long for test",
                     },
                     {
                         "type": "pattern",
                         "pattern": "^[a-zA-Z0-9\\s]+$",
-                        "error_message": "Invalid characters in test input"
-                    }
-                ]
+                        "error_message": "Invalid characters in test input",
+                    },
+                ],
             },
             {
                 "name": "TestOutputGuardrail",
@@ -50,27 +50,27 @@ def test_config():
                     {
                         "type": "length",
                         "max_length": 100,
-                        "error_message": "Output too long for test"
+                        "error_message": "Output too long for test",
                     }
-                ]
-            }
+                ],
+            },
         ],
         "prediction": {
             "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
-            "cache_dir": "./.cache/"
-        }
+            "cache_dir": "./.cache/",
+        },
     }
 
 
 @pytest.fixture
 def temp_config_file(test_config):
     """Create a temporary config file for testing."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         json.dump(test_config, f)
         temp_file = f.name
-    
+
     yield temp_file
-    
+
     # Cleanup
     os.unlink(temp_file)
 
@@ -78,13 +78,14 @@ def temp_config_file(test_config):
 @pytest.fixture
 def client(temp_config_file):
     """FastAPI test client with mocked config."""
-    with patch('app.routes.load_config') as mock_load_config:
-        with open(temp_config_file, 'r') as f:
+    with patch("app.routes.load_config") as mock_load_config:
+        with open(temp_config_file, "r") as f:
             config = json.load(f)
         mock_load_config.return_value = config
-        
+
         # Import after patching
         from main import app
+
         return TestClient(app)
 
 
@@ -99,7 +100,7 @@ def sample_texts():
         "empty": "",
         "similar_text1": "The quick brown fox jumps over the lazy dog",
         "similar_text2": "A quick brown fox leaps over a lazy dog",
-        "different_text": "Python is a great programming language"
+        "different_text": "Python is a great programming language",
     }
 
 

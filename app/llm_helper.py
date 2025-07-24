@@ -1,3 +1,7 @@
+"""
+LLM Helper Module
+"""
+
 import torch
 import logging
 from transformers import AutoTokenizer, AutoModelForCausalLM
