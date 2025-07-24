@@ -1,4 +1,5 @@
 import json
+import os
 
 GUARDRAIL_RULES = {"pattern", "length", "llm"}
 
@@ -41,5 +42,15 @@ def load_config(file_path):
                     raise ValueError(
                         "Length rules must have 'min_length' or 'max_length' keys."
                     )
-
+    if "prediction" in config:
+        if "model" not in config["prediction"]:
+            raise ValueError("Prediction configuration must have a 'model' key.")
+        if "cache_dir" in config["prediction"]:
+            config["prediction"]["cache_dir"] = os.path.expanduser(
+                config["prediction"]["cache_dir"]
+            )
+        if "parameters" not in config["prediction"]:
+            config["prediction"]["parameters"] = {}
+        if "temperature" not in config["prediction"]["parameters"]:
+            config["prediction"]["parameters"]["temperature"] = 1.0
     return config

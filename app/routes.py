@@ -3,6 +3,7 @@ from typing import Dict, Any, List
 from app.utils import load_config
 from app.guardrails.guardrail import GuardrailService
 from app.similarity import SimilarityService
+from app.llm_helper import LLMHelper
 from app.models import (
     GuardrailRequest,
     GuardrailResponse,
@@ -12,6 +13,7 @@ from app.models import (
     PredictionResponse,
 )
 import logging
+import os
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -23,7 +25,7 @@ input_guardrail = None
 output_guardrail = None
 try:
     config = load_config("config.json")
-    logger.error(f"Configuration loaded successfully: {config}")
+    logger.info(f"Configuration loaded successfully: {config}")
     for guardrail in config.get("guardrails", []):
         logger.info(
             f"Guardrail loaded: {guardrail['name']} of type {guardrail['guardrail_type']}"
@@ -39,6 +41,14 @@ except Exception as e:
     logger.error(f"Failed to load configuration or initialize services: {e}")
     config = {}
     similarity_service = None
+# Loading the LLM Helper outside the endpoints to avoid re-initialization
+os.environ['HF_HOME'] = config.get("prediction", {}).get("cache_dir", "./.cache/")
+print(f"HF_HOME set to: {os.environ['HF_HOME']}")
+llm_helper = LLMHelper(
+    model_name=config.get("prediction", {}).get("model", "default_model")
+)
+
+cache = {}
 
 
 @router.get("/", response_model=Dict[str, Any])
@@ -154,25 +164,31 @@ async def similarity(request: SimilarityRequest):
 async def prediction(request: PredictionRequest):
     """Generate predictions using specified model."""
     try:
-        if not input_guardrail or not output_guardrail:
-            # no need to check safety
-            prediction_text = f"Generated response for: {request.input_text[:50]}..."
-            return PredictionResponse(prediction=prediction_text)
-
-        input_validation = input_guardrail.validate(request.input_text)
-        if not input_validation.is_valid:
-            logger.warning(f"Input validation failed: {input_validation.message}")
-            return PredictionResponse(
-                prediction="Unsafe input detected, prediction not generated."
+        ### check similarity with cache using similarity_service
+        for key, cached_value in cache.items():
+            similarity_score, _ = similarity_service.calculate_similarity(
+                request.input_text, key, method="jaccard"
             )
+            if similarity_score > 0.8:
+                logger.info(f"Using cached prediction for: {key}")
+                return PredictionResponse(prediction=cached_value)
+        if input_guardrail:
+            input_validation = input_guardrail.validate(request.input_text)
+            if not input_validation.is_valid:
+                logger.warning(f"Input validation failed: {input_validation.message}")
+                return PredictionResponse(
+                    prediction="Unsafe input detected, prediction not generated."
+                )
+        prediction_text = llm_helper.generate(request.input_text)
 
-        output_validation = output_guardrail.validate(prediction_text)
-        if not output_validation.is_valid:
-            logger.warning(f"Output validation failed: {output_validation.message}")
-            return PredictionResponse(
-                prediction="Unsafe output detected, prediction not generated."
-            )
-
+        if output_guardrail:
+            output_validation = output_guardrail.validate(prediction_text)
+            if not output_validation.is_valid:
+                logger.warning(f"Output validation failed: {output_validation.message}")
+                return PredictionResponse(
+                    prediction="Unsafe output detected, prediction not generated."
+                )
+        cache[request.input_text] = prediction_text
         return PredictionResponse(prediction=prediction_text)
     except Exception as e:
         logger.error(f"Error in prediction: {e}")

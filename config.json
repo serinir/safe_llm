@@ -12,10 +12,18 @@
                 },
                 {
                     "type": "pattern",
-                    "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                    "pattern": "([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})",
                     "error_message": "Input contains email addresses."
                 }
             ]
         }
-    ]
+    ],
+    "prediction":{
+        "model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+        "cache_dir": "./.cache",
+        "parameters": {
+            "temperature": 0.8,
+            "max_tokens": 500
+        }
+    }
 }

@@ -3,9 +3,7 @@ Tests for guardrail functionality.
 """
 
 from app.guardrails.guardrail import GuardrailService
-from app.models import GuardrailRequest, GuardrailResponse
-import pytest
-from app.utils import load_config
+from app.models import GuardrailResponse
 
 
 class TestGuardrailService:
@@ -88,19 +86,6 @@ class TestGuardrailService:
         guardrail_config = test_config["guardrails"][0]
         service = GuardrailService(config=guardrail_config)
 
-        # Test valid pattern (should return False because pattern means "contains invalid chars")
-        valid_text = "Hello world 123"
-        pattern = "^[a-zA-Z0-9\\s]+$"  # Allow only alphanumeric and spaces
-
-        # This is testing the current implementation logic
-        result = service._validate_pattern(valid_text, pattern)
-        # Note: Current implementation seems to have inverted logic for patterns
-
-        # Test with invalid characters
-        invalid_text = "Hello @#$% world!"
-        result_invalid = service._validate_pattern(invalid_text, pattern)
-
-        # Test with empty pattern
         result_empty_pattern = service._validate_pattern("any text", "")
         assert result_empty_pattern is True
 

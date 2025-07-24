@@ -2,7 +2,6 @@
 Similarity calculation module for text comparison.
 """
 
-from abc import ABC
 from typing import Tuple
 import logging
 from sklearn.feature_extraction.text import TfidfVectorizer
