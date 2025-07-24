@@ -140,9 +140,7 @@ The `config.json` file defines guardrails, similarity settings, and LLM configur
 - **cosine_tfidf**: Cosine similarity using TF-IDF vectors
 
 ## Development
-
-The application uses a modular, service-oriented architecture:
-
+The application is designed with a modular architecture : 
 - **GuardrailService**: Handles input/output validation with configurable rules
 - **SimilarityService**: Manages different similarity calculation methods
 - **LLMHelper**: Integrates with HuggingFace transformers for text generation
@@ -151,10 +149,8 @@ The application uses a modular, service-oriented architecture:
 
 ### Key Components
 
-- **Intelligent Caching**: Uses similarity checking to find cached predictions for similar inputs
-- **Device Auto-detection**: Automatically uses CUDA, MPS (Apple Silicon), or CPU
+- **Prompt Caching**: Uses similarity checking to find cached predictions for similar inputs (Extra Feature)
 - **Modular Rules**: Easy to extend guardrail rules and similarity methods
-- **Comprehensive Testing**: Unit tests, integration tests, and mocking for all components
 
 To add new features:
 - **Guardrail rules**: Extend `GuardrailService` in `app/guardrails/guardrail.py`
